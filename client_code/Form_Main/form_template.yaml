@@ -6,11 +6,13 @@ components:
     name: timer_1
     properties: {interval: 0.5}
     type: Timer
-  - layout_properties: {grid_position: 'MNJVYM,PRTTGX'}
+  - event_bindings: {change: file_loader_1_change}
+    layout_properties: {grid_position: 'MNJVYM,PRTTGX'}
     name: file_loader_1
     properties: {}
     type: FileLoader
-  - layout_properties: {grid_position: 'AFGATF,YSCNQU'}
+  - event_bindings: {click: start_process_click}
+    layout_properties: {grid_position: 'AFGATF,YSCNQU'}
     name: start_process
     properties: {text: start process}
     type: Button

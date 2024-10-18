@@ -1,4 +1,22 @@
 allow_embedding: true
+db_schema:
+  users:
+    client: none
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: username
+      type: string
+    - admin_ui: {order: 1, width: 200}
+      name: password
+      type: string
+    - admin_ui: {order: -1, width: 200}
+      name: First Name
+      type: string
+    - admin_ui: {order: -0.5, width: 200}
+      name: Last Name
+      type: string
+    server: full
+    title: users
 metadata: {title: cin7 update record testbed}
 name: cin7_record_update_testbed
 package_name: cin7_record_update_testbed
