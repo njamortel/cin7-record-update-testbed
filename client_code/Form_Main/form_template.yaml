@@ -1,0 +1,48 @@
+components:
+- components:
+  - data_bindings:
+    - {code: 'self.item['''']', property: interval, writeback: false}
+    layout_properties: {grid_position: 'RQPZSL,EWKGDP'}
+    name: timer_1
+    properties: {interval: 0.5}
+    type: Timer
+  - layout_properties: {grid_position: 'MNJVYM,PRTTGX'}
+    name: file_loader_1
+    properties: {}
+    type: FileLoader
+  - layout_properties: {grid_position: 'AFGATF,YSCNQU'}
+    name: start_process
+    properties: {text: start process}
+    type: Button
+  - layout_properties: {grid_position: 'SPASTY,PEINSY'}
+    name: lblProgress
+    properties: {text: 'Progress Status : '}
+    type: Label
+  - event_bindings: {pressed_enter: txtProgress_pressed_enter}
+    layout_properties: {grid_position: 'ZEDXUU,WVBVQL'}
+    name: txtProgress
+    properties: {enabled: false, visible: true}
+    type: TextBox
+  - layout_properties: {grid_position: 'QDOOHH,OSFWBK'}
+    name: label_1
+    properties: {text: 'App Console Log :'}
+    type: Label
+  - event_bindings: {}
+    layout_properties: {grid_position: 'YGSLKW,KDYELT'}
+    name: rich_text_Log
+    properties:
+      content: |2+
+
+    type: RichText
+  layout_properties: {slot: default}
+  name: content_panel
+  properties: {}
+  type: ColumnPanel
+- layout_properties: {slot: title}
+  name: rich_text_1
+  properties: {content: Cin7 purchase order record update}
+  type: RichText
+container:
+  properties: {html: '@theme:dashboard.html'}
+  type: HtmlTemplate
+is_package: true
