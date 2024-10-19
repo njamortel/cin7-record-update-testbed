@@ -22,8 +22,8 @@ name: cin7_record_update_testbed
 package_name: cin7_record_update_testbed
 runtime_options:
   client_version: '3'
-  server_spec: {base: python310-standard}
-  server_spec_disabled: {base: python310-standard, requirements: ''}
+  server_spec: {base: python310-machine-learning}
+  server_spec_disabled: {base: python310-standard, requirements: jsonschema}
   server_version: python3-sandbox
   version: 2
 services:
