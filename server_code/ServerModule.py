@@ -5,7 +5,7 @@ import base64
 import requests
 from datetime import datetime
 
-# Global variable to store log messages
+# Global variables to store log messages and progress
 log_messages = []
 progress = 0
 update_result = ""
@@ -18,8 +18,10 @@ def append_to_log_message_queue(message):
 @anvil.server.callable
 def process_csv_and_update(file):
     global progress
+    global log_messages
+    log_messages = []  # Reset log messages for each run
     progress = 0  # Reset progress
-    append_to_log_message_queue("process_csv_and_update called")
+    append_to_log_message_queue("Processing started")
 
     try:
         # Read the CSV file
@@ -42,8 +44,8 @@ def process_csv_and_update(file):
         
         # Call function to update purchase orders
         result = update_purchase_orders(json_data)
-
-        return result
+        append_to_log_message_queue(f"Processing finished: {result}")
+        return result  # Return result to client
     except Exception as e:
         append_to_log_message_queue(f"Error processing CSV: {str(e)}")
         return f"Error processing CSV: {str(e)}"
@@ -57,7 +59,7 @@ def format_date(date_str):
 
 def update_purchase_orders(json_data):
     global progress, update_result
-    append_to_log_message_queue("update_purchase_orders called")
+    append_to_log_message_queue("Sending purchase order updates to API")
     
     # API details
     api_key = '4cc465afd3534370bbc4431e770346e1'
@@ -81,7 +83,6 @@ def update_purchase_orders(json_data):
         if response.status_code == 200:
             update_result = f"Successfully updated {total_records} records."
             append_to_log_message_queue(f"Response body: {response.json()}")  # Log the response body
-            append_to_log_message_queue(update_result)
         else:
             update_result = f"Failed to update records. Response Code: {response.status_code}"
             append_to_log_message_queue(f"Response body: {response.text}")  # Log the response body on failure
@@ -105,5 +106,4 @@ def update_purchase_orders(json_data):
 @anvil.server.callable
 def get_log_messages():
     global log_messages
-    append_to_log_message_queue("get_log_messages called")
-    return log_messages
+    return log_messages  # Return current log messages
