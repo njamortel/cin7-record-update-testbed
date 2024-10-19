@@ -4,7 +4,6 @@ import csv
 import base64
 import requests
 from datetime import datetime
-import time
 
 # Global variable to store log messages
 log_messages = []
@@ -64,61 +63,38 @@ def update_purchase_orders(json_data):
         'Content-Type': 'application/json'
     }
 
-    data = json.loads(json_data)
-    total_records = len(data["purchase_orders"])
-    updated_records = 0
+    try:
+        # Send all purchase orders in one bulk request
+        data = json.loads(json_data)
+        total_records = len(data["purchase_orders"])
 
-    for i, order in enumerate(data["purchase_orders"], start=1):
-        append_to_log_message_queue(f"Updating record {i}/{total_records}: {json.dumps(order, indent=4)}")
+        append_to_log_message_queue(f"Sending bulk update for {total_records} records.")
+        response = requests.post(endpoint_url, headers=headers, json=data["purchase_orders"])
+        response.raise_for_status()
 
+        if response.status_code == 200:
+            update_result = f"Successfully updated {total_records} records."
+            append_to_log_message_queue(update_result)
+        else:
+            update_result = f"Failed to update records. Response Code: {response.status_code}"
+            append_to_log_message_queue(update_result)
+        
+    except requests.exceptions.HTTPError as err:
         try:
-            response = requests.post(endpoint_url, headers=headers, json=[order])
-            response.raise_for_status()
+            error_message = response.json() if response.headers.get('Content-Type') == 'application/json' else response.text
+        except ValueError:
+            error_message = response.text
+        append_to_log_message_queue(f"HTTP error occurred: {err}\n"
+                                    f"Response Code: {response.status_code}\n"
+                                    f"Response Message: {json.dumps(error_message, indent=4)}")
+    except Exception as err:
+        append_to_log_message_queue(f"Other error occurred: {err}")
 
-            if response.status_code == 200:
-                updated_records += 1
-                append_to_log_message_queue(f"Successfully updated record {order['id']}")
-            else:
-                append_to_log_message_queue(f"Failed to update record {order['id']}")
-        except requests.exceptions.HTTPError as err:
-            try:
-                error_message = response.json() if response.headers.get('Content-Type') == 'application/json' else response.text
-            except ValueError:
-                error_message = response.text
-            append_to_log_message_queue(f"HTTP error occurred: {err}\n"
-                                         f"Error updating record {order['id']}:\n"
-                                         f"Response Code: {response.status_code}\n"
-                                         f"Response Message: {json.dumps(error_message, indent=4)}\n"
-                                         f"Request Payload: {json.dumps(order, indent=4)}")
-        except Exception as err:
-            append_to_log_message_queue(f"Other error occurred: {err}")
-
-        progress = (i / total_records) * 100
-        anvil.server.call('update_progress', progress)
-        append_to_log_message_queue(f"Progress updated to {progress}%")
-
+    # Update progress to 100% since we are doing it in bulk
     progress = 100
-    anvil.server.call('update_progress', progress)
-    update_result = f"Successfully updated {updated_records}/{total_records} records."
-    append_to_log_message_queue(update_result)
-    return update_result
+  
+    append_to_log_message_queue("Progress updated to 100%")
 
-@anvil.server.callable
-def update_progress(value):
-    global progress
-    progress = value
-    append_to_log_message_queue(f"update_progress called with value: {value}")
-
-@anvil.server.callable
-def get_progress():
-    global progress
-    append_to_log_message_queue("get_progress called")
-    return progress
-
-@anvil.server.callable
-def get_update_result():
-    global update_result
-    append_to_log_message_queue("get_update_result called")
     return update_result
 
 @anvil.server.callable
