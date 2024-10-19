@@ -33,8 +33,8 @@ def process_csv_and_update(file):
             purchase_order = {
                 "id": int(row["id"]),
                 "stage": row["stage"],
-                "estimatedArrivalDate": '2024-10-16T06:50:58.9796864+13:00',
-                "estimatedDeliveryDate": '2024-10-16T06:50:58.9796864+13:00'
+                "estimatedArrivalDate": format_date(row["estimatedArrivalDate"]),
+                "estimatedDeliveryDate": format_date(row["estimatedDeliveryDate"])
             }
             data.append(purchase_order)
 
@@ -72,7 +72,7 @@ def update_purchase_orders(json_data):
         append_to_log_message_queue(f"Updating record {i}/{total_records}: {json.dumps(order, indent=4)}")
 
         try:
-            response = requests.post(endpoint_url, headers=headers, json=order)
+            response = requests.post(endpoint_url, headers=headers, json=[order])
             response.raise_for_status()
 
             if response.status_code == 200:
