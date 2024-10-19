@@ -39,7 +39,11 @@ def process_csv_and_update(file):
 
         json_data = json.dumps({"purchase_orders": data}, indent=4)
         append_to_log_message_queue("CSV file processed successfully")
-        return update_purchase_orders(json_data)
+        
+        # Call function to update purchase orders
+        result = update_purchase_orders(json_data)
+
+        return result
     except Exception as e:
         append_to_log_message_queue(f"Error processing CSV: {str(e)}")
         return f"Error processing CSV: {str(e)}"
@@ -54,6 +58,8 @@ def format_date(date_str):
 def update_purchase_orders(json_data):
     global progress, update_result
     append_to_log_message_queue("update_purchase_orders called")
+    
+    # API details
     api_key = '4cc465afd3534370bbc4431e770346e1'
     username = 'SignalPowerDelivUS'
     endpoint_url = "https://api.cin7.com/api/v1/PurchaseOrders"
@@ -69,16 +75,16 @@ def update_purchase_orders(json_data):
         total_records = len(data["purchase_orders"])
 
         append_to_log_message_queue(f"Sending bulk update for {total_records} records.")
-        response = requests.post(endpoint_url, headers=headers, json=data["purchase_orders"])
+        response = requests.put(endpoint_url, headers=headers, json=data["purchase_orders"])
         response.raise_for_status()
 
         if response.status_code == 200:
             update_result = f"Successfully updated {total_records} records."
+            append_to_log_message_queue(f"Response body: {response.json()}")  # Log the response body
             append_to_log_message_queue(update_result)
         else:
             update_result = f"Failed to update records. Response Code: {response.status_code}"
-            append_to_log_message_queue(update_result)
-        
+            append_to_log_message_queue(f"Response body: {response.text}")  # Log the response body on failure
     except requests.exceptions.HTTPError as err:
         try:
             error_message = response.json() if response.headers.get('Content-Type') == 'application/json' else response.text
@@ -92,7 +98,6 @@ def update_purchase_orders(json_data):
 
     # Update progress to 100% since we are doing it in bulk
     progress = 100
-  
     append_to_log_message_queue("Progress updated to 100%")
 
     return update_result
