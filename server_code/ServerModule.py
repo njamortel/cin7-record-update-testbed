@@ -68,55 +68,109 @@ def validate_cin7_api_data(order):
         raise ValueError("Invalid Cin7 API data: missing required keys")
     # Add additional validation as needed
 
+
 def update_purchase_orders(json_data):
     global progress, update_result
     append_to_log_message_queue("update_purchase_orders called")
-
     api_key = '4cc465afd3534370bbc4431e770346e1'
     username = 'SignalPowerDelivUS'
-    endpoint_url = 'https://api.cin7.com/api/v1/PurchaseOrders/'
+    endpoint_url = "https://api.cin7.com/api/v1/PurchaseOrders"
     credentials = base64.b64encode(f'{username}:{api_key}'.encode('utf-8')).decode('utf-8')
     headers = {
         'Authorization': 'Basic ' + credentials,
         'Content-Type': 'application/json'
     }
 
-    try:
-        data = json.loads(json_data)
-        validate_data(data)
-        total_records = len(data)
-        updated_records = 0
-        for i, order in enumerate(data, start=1):
-            try:
-                validate_cin7_api_data(order)
-                order["estimatedArrivalDate"] = format_date(order["estimatedArrivalDate"])
-                order["estimatedDeliveryDate"] = format_date(order["estimatedDeliveryDate"])
-                append_to_log_message_queue(f"Updating record {i}/{total_records}: {json.dumps(order, indent=4)}")
-                response = requests.put(f"{endpoint_url}{order['id']}", headers=headers, json=order)
-                append_to_log_message_queue(f"Sending JSON data: {json.dumps(order, indent=4)}")
-                append_to_log_message_queue(f"API response status code: {response.status_code}")
-                append_to_log_message_queue(f"API response text: {response.text}")
-                response.raise_for_status()
+    data = json.loads(json_data)
+    total_records = len(data["purchase_orders"])
+    updated_records = 0
+
+    for i, order_list in enumerate(data["purchase_orders"], start=1):
+      order = order_list[0]
+      append_to_log_message_queue(f"Updating record {i}/{total_records}: {json.dumps(order, indent=4)}")
+        try:
+            response = requests.post(endpoint_url, headers=headers, json=order)
+            response.raise_for_status()
+
+            if response.status_code == 200:
                 updated_records += 1
-            except requests.exceptions.RequestException as err:
-                append_to_log_message_queue(f"API request error: {err}")
-            except ValueError as err:
-                append_to_log_message_queue(f"Invalid Cin7 API data: {err}")
-            except Exception as err:
-                append_to_log_message_queue(f"Other error occurred: {err}")
+                append_to_log_message_queue(f"Successfully updated record {order['id']}")
+            else:
+                append_to_log_message_queue(f"Failed to update record {order['id']}")
+        except requests.exceptions.HTTPError as err:
+            try:
+                error_message = response.json() if response.headers.get('Content-Type') == 'application/json' else response.text
+            except ValueError:
+                error_message = response.text
+            append_to_log_message_queue(f"HTTP error occurred: {err}\n"
+                                         f"Error updating record {order['id']}:\n"
+                                         f"Response Code: {response.status_code}\n"
+                                         f"Response Message: {json.dumps(error_message, indent=4)}\n"
+                                         f"Request Payload: {json.dumps(order, indent=4)}")
+        except Exception as err:
+            append_to_log_message_queue(f"Other error occurred: {err}")
+
         progress = (i / total_records) * 100
         anvil.server.call('update_progress', progress)
         append_to_log_message_queue(f"Progress updated to {progress}%")
-        progress = 100
-        anvil.server.call('update_progress', progress)
-        update_result = f"Successfully updated {updated_records}/{total_records} records."
-        append_to_log_message_queue(update_result)
-        return update_result
-    except Exception as e:
-        append_to_log_message_queue(f"Error updating purchase orders: {str(e)}")
-        return f"Error updating purchase orders: {str(e)}"
+
+    progress = 100
+    anvil.server.call('update_progress', progress)
+    update_result = f"Successfully updated {updated_records}/{total_records} records."
+    append_to_log_message_queue(update_result)
+    return update_result
 
 @anvil.server.callable
+
+# def update_purchase_orders(json_data):
+#     global progress, update_result
+#     append_to_log_message_queue("update_purchase_orders called")
+
+#     api_key = '4cc465afd3534370bbc4431e770346e1'
+#     username = 'SignalPowerDelivUS'
+#     endpoint_url = 'https://api.cin7.com/api/v1/PurchaseOrders/'
+#     credentials = base64.b64encode(f'{username}:{api_key}'.encode('utf-8')).decode('utf-8')
+#     headers = {
+#         'Authorization': 'Basic ' + credentials,
+#         'Content-Type': 'application/json'
+#     }
+
+#     try:
+#         data = json.loads(json_data)
+#         validate_data(data)
+#         total_records = len(data)
+#         updated_records = 0
+#         for i, order in enumerate(data, start=1):
+#             try:
+#                 validate_cin7_api_data(order)
+#                 order["estimatedArrivalDate"] = format_date(order["estimatedArrivalDate"])
+#                 order["estimatedDeliveryDate"] = format_date(order["estimatedDeliveryDate"])
+#                 append_to_log_message_queue(f"Updating record {i}/{total_records}: {json.dumps(order, indent=4)}")
+#                 response = requests.put(f"{endpoint_url}{order['id']}", headers=headers, json=order)
+#                 append_to_log_message_queue(f"Sending JSON data: {json.dumps(order, indent=4)}")
+#                 append_to_log_message_queue(f"API response status code: {response.status_code}")
+#                 append_to_log_message_queue(f"API response text: {response.text}")
+#                 response.raise_for_status()
+#                 updated_records += 1
+#             except requests.exceptions.RequestException as err:
+#                 append_to_log_message_queue(f"API request error: {err}")
+#             except ValueError as err:
+#                 append_to_log_message_queue(f"Invalid Cin7 API data: {err}")
+#             except Exception as err:
+#                 append_to_log_message_queue(f"Other error occurred: {err}")
+#         progress = (i / total_records) * 100
+#         anvil.server.call('update_progress', progress)
+#         append_to_log_message_queue(f"Progress updated to {progress}%")
+#         progress = 100
+#         anvil.server.call('update_progress', progress)
+#         update_result = f"Successfully updated {updated_records}/{total_records} records."
+#         append_to_log_message_queue(update_result)
+#         return update_result
+#     except Exception as e:
+#         append_to_log_message_queue(f"Error updating purchase orders: {str(e)}")
+#         return f"Error updating purchase orders: {str(e)}"
+
+# @anvil.server.callable
 def update_progress(value):
     global progress
     progress = value
