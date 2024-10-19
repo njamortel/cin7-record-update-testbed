@@ -13,21 +13,19 @@ update_result = ""
 def append_to_log_message_queue(message):
     global log_messages
     log_messages.append(message)
-    print(message)  # Print to server logs for debugging
+    print(message) 
 
 @anvil.server.callable
 def process_csv_and_update(file):
-    global progress
-    progress = 0  # Reset progress
+    global progress, update_result
+    progress = 0
     append_to_log_message_queue("process_csv_and_update called")
 
     try:
-        # Read the CSV file
         csv_data = file.get_bytes().decode('utf-8').splitlines()
         csv_reader = csv.DictReader(csv_data)
         data = []
-
-        # Prepare JSON structure
+      
         for row in csv_reader:
             purchase_order = {
                 "id": int(row["id"]),
@@ -40,13 +38,9 @@ def process_csv_and_update(file):
         json_data = json.dumps({"purchase_orders": data}, indent=4)
         append_to_log_message_queue("CSV file processed successfully")
         
-        # Call function to update purchase orders
-        result = update_purchase_orders(json_data)
+        update_result = update_purchase_orders(json_data)
 
-        # Append the result to the log messages queue
-        append_to_log_message_queue(result)
-
-        return result
+        return update_result
     except Exception as e:
         error_message = f"Error processing CSV: {str(e)}"
         append_to_log_message_queue(error_message)
@@ -63,7 +57,6 @@ def update_purchase_orders(json_data):
     global progress, update_result
     append_to_log_message_queue("update_purchase_orders called")
     
-    # API details
     api_key = '4cc465afd3534370bbc4431e770346e1'
     username = 'SignalPowerDelivUS'
     endpoint_url = "https://api.cin7.com/api/v1/PurchaseOrders"
@@ -74,7 +67,6 @@ def update_purchase_orders(json_data):
     }
 
     try:
-        # Send all purchase orders in one bulk request
         data = json.loads(json_data)
         total_records = len(data["purchase_orders"])
 
@@ -97,10 +89,11 @@ def update_purchase_orders(json_data):
         append_to_log_message_queue(f"HTTP error occurred: {err}\n"
                                     f"Response Code: {response.status_code}\n"
                                     f"Response Message: {json.dumps(error_message, indent=4)}")
+        update_result = "Error updating records. Check logs for more details."
     except Exception as err:
         append_to_log_message_queue(f"Other error occurred: {err}")
+        update_result = "Error updating records. Check logs for more details."
 
-    # Update progress to 100% since we are doing it in bulk
     progress = 100
     append_to_log_message_queue("Progress updated to 100%")
 
@@ -111,8 +104,3 @@ def get_log_messages():
     global log_messages
     append_to_log_message_queue("get_log_messages called")
     return log_messages
-  
-@anvil.server.callable
-def get_update_result():
-    global update_result
-    return update_result
