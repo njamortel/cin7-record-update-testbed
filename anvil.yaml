@@ -54,5 +54,5 @@ services:
 - client_config: {}
   server_config: {}
   source: /runtime/services/google.yml
-startup: {module: Form_Main, type: form}
+startup: {module: Form_Login, type: form}
 startup_form: null
