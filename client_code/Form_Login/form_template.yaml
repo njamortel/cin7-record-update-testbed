@@ -26,7 +26,8 @@ components:
     name: spacer_1
     properties: {height: 32, visible: false}
     type: Spacer
-  - layout_properties: {grid_position: 'QYJOCC,NBLQFY'}
+  - event_bindings: {click: button_login_click}
+    layout_properties: {grid_position: 'QYJOCC,NBLQFY'}
     name: button_login
     properties: {text: Login}
     type: Button

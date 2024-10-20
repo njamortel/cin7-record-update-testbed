@@ -1,20 +1,40 @@
 allow_embedding: true
 db_schema:
+  table_2:
+    client: none
+    columns: []
+    server: full
+    title: Table 2
   users:
     client: none
     columns:
-    - admin_ui: {order: 0, width: 200}
-      name: username
-      type: string
-    - admin_ui: {order: 1, width: 200}
-      name: password
-      type: string
     - admin_ui: {order: -1, width: 200}
       name: First Name
       type: string
     - admin_ui: {order: -0.5, width: 200}
       name: Last Name
       type: string
+    - admin_ui: {order: 4, width: 200}
+      name: email
+      type: string
+    - admin_ui: {order: 5, width: 200}
+      name: enabled
+      type: bool
+    - admin_ui: {order: 6, width: 200}
+      name: last_login
+      type: datetime
+    - admin_ui: {order: 7, width: 200}
+      name: password_hash
+      type: string
+    - admin_ui: {order: 8, width: 200}
+      name: n_password_failures
+      type: number
+    - admin_ui: {order: 9, width: 200}
+      name: confirmed_email
+      type: bool
+    - admin_ui: {order: 10, width: 200}
+      name: signed_up
+      type: datetime
     server: full
     title: users
 metadata: {title: cin7 update record testbed}
@@ -30,5 +50,11 @@ services:
 - client_config: {}
   server_config: {}
   source: /runtime/services/tables.yml
+- client_config: {allow_signup: true, confirm_email: false, enable_automatically: true, use_email: true, use_google: false}
+  server_config: {user_table: users}
+  source: /runtime/services/anvil/users.yml
+- client_config: {}
+  server_config: {}
+  source: /runtime/services/google.yml
 startup: {module: Form_Main, type: form}
 startup_form: null

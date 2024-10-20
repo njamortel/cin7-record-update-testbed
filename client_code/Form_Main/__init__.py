@@ -1,5 +1,8 @@
 from ._anvil_designer import Form_MainTemplate
 from anvil import *
+import anvil.google.auth, anvil.google.drive
+from anvil.google.drive import app_files
+import anvil.users
 import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
@@ -8,6 +11,7 @@ import anvil.media
 
 class Form_Main(Form_MainTemplate):
     def __init__(self, **properties):
+        anvil.users.login_with_form()
         self.init_components(**properties)
         self.csv_file = None
 
