@@ -15,3 +15,5 @@ class Form_Login(Form_LoginTemplate):
     self.init_components(**properties)
 
     anvil.users.login_with_form()
+
+  
