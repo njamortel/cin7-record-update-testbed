@@ -40,9 +40,9 @@ name: cin7_record_update_testbed
 package_name: cin7_record_update_testbed
 runtime_options:
   client_version: '3'
-  server_spec: {base: python310-datascience}
-  server_spec_disabled: {base: python310-standard, requirements: jsonschema}
-  server_version: python3-sandbox
+  server_spec: null
+  server_spec_disabled: {base: python310-datascience, requirements: ''}
+  server_version: python3-full
   version: 2
 services:
 - client_config: {}
