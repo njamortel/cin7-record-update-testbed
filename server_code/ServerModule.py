@@ -7,6 +7,8 @@ import csv
 import base64
 import requests
 from datetime import datetime
+import asyncio
+import aiohttp
 
 # Global variable to store log messages
 log_messages = []
@@ -16,7 +18,7 @@ update_result = ""
 def append_to_log_message_queue(message):
     global log_messages
     log_messages.append(message)
-    print(message) 
+    print(message)
 
 @anvil.server.callable
 def process_csv_and_update(file):
@@ -41,7 +43,8 @@ def process_csv_and_update(file):
         json_data = json.dumps({"purchase_orders": data}, indent=4)
         append_to_log_message_queue("CSV file processed successfully")
         
-        update_result = update_purchase_orders(json_data)
+        # Run the asynchronous update function
+        asyncio.run(update_purchase_orders(json_data))
 
         return update_result
     except Exception as e:
@@ -56,7 +59,7 @@ def format_date(date_str):
     except ValueError:
         return date_str
 
-def update_purchase_orders(json_data):
+async def update_purchase_orders(json_data):
     global progress, update_result
     append_to_log_message_queue("update_purchase_orders called")
     
@@ -74,24 +77,21 @@ def update_purchase_orders(json_data):
         total_records = len(data["purchase_orders"])
 
         append_to_log_message_queue(f"Sending bulk update for {total_records} records.")
-        response = requests.put(endpoint_url, headers=headers, json=data["purchase_orders"])
-        response.raise_for_status()
+        
+        # Use aiohttp for asynchronous HTTP request
+        async with aiohttp.ClientSession() as session:
+            async with session.put(endpoint_url, headers=headers, json=data["purchase_orders"]) as response:
+                response_text = await response.text()
 
-        if response.status_code == 200:
-            update_result = f"Successfully updated {total_records} records."
-            append_to_log_message_queue(update_result)
-        else:
-            update_result = f"Failed to update records. Response Code: {response.status_code}"
-            append_to_log_message_queue(update_result)
-          
-    except requests.exceptions.HTTPError as err:
-        try:
-            error_message = response.json() if response.headers.get('Content-Type') == 'application/json' else response.text
-        except ValueError:
-            error_message = response.text
-        append_to_log_message_queue(f"HTTP error occurred: {err}\n"
-                                    f"Response Code: {response.status_code}\n"
-                                    f"Response Message: {json.dumps(error_message, indent=4)}")
+                if response.status == 200:
+                    update_result = f"Successfully updated {total_records} records."
+                    append_to_log_message_queue(update_result)
+                else:
+                    update_result = f"Failed to update records. Response Code: {response.status}"
+                    append_to_log_message_queue(update_result)
+                
+    except aiohttp.ClientError as err:
+        append_to_log_message_queue(f"HTTP error occurred: {err}")
         update_result = "Error updating records. Check logs for more details."
     except Exception as err:
         append_to_log_message_queue(f"Other error occurred: {err}")
