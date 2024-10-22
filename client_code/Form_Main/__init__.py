@@ -18,6 +18,7 @@ class Form_Main(Form_MainTemplate):
         self.task_id = None  # To store the background task ID
         self.timer_1.interval = 1  # Polling interval of 1 second
         self.timer_1.enabled = False  # Timer is initially disabled
+        self.seconds_counter = 0  # Counter to track the 30-second delay separately
 
     def file_loader_1_change(self, file, **event_args):
         self.csv_file = file
@@ -36,7 +37,8 @@ class Form_Main(Form_MainTemplate):
             try:
                 # Start the background task and get the task ID
                 self.task_id = anvil.server.call('process_csv_and_update', self.csv_file)
-                self.timer_1.enabled = True  # Enable the timer to start polling
+                self.seconds_counter = 0  # Reset the counter
+                self.timer_1.enabled = True  # Enable the timer to start polling for both task and delay
             except Exception as e:
                 self.txtProgress.text = f"Error: {str(e)}"
                 self.rich_text_Log.content += f"Error: {str(e)}\n"
@@ -47,7 +49,16 @@ class Form_Main(Form_MainTemplate):
             self.rich_text_Log.content += "Please upload a CSV file first.\n"
 
     def timer_1_tick(self, **event_args):
-        """This method is called at intervals to check the task status."""
+        """This method is called at intervals to check the task status and track the 30-second timer."""
+        # Increment the counter and check if 30 seconds have passed
+        self.seconds_counter += 1
+        if self.seconds_counter == 30:
+            # After 30 seconds, update the message to "SUCCESS UPLOADING"
+            self.txtProgress.text = "SUCCESS UPLOADING"
+            self.rich_text_Log.content += "SUCCESS UPLOADING\n"
+            self.timer_1.enabled = False  # Disable the timer
+
+        # Check the background task status
         if self.task_id:
             try:
                 task = anvil.server.get_background_task(self.task_id)
