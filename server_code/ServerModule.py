@@ -18,10 +18,16 @@ update_result = ""
 def append_to_log_message_queue(message):
     global log_messages
     log_messages.append(message)
-    print(message)
+    print(message) 
 
 @anvil.server.callable
 def process_csv_and_update(file):
+    # Launch background task to process CSV
+    task = anvil.server.launch_background_task('background_csv_processing', file)
+    return task.get_id()  # Return task ID to track progress
+
+@anvil.server.background_task
+def background_csv_processing(file):
     global progress, update_result
     progress = 0
     append_to_log_message_queue("process_csv_and_update called")
@@ -43,7 +49,7 @@ def process_csv_and_update(file):
         json_data = json.dumps({"purchase_orders": data}, indent=4)
         append_to_log_message_queue("CSV file processed successfully")
         
-        # Run the asynchronous update function
+        # Call the asynchronous function for updating
         asyncio.run(update_purchase_orders(json_data))
 
         return update_result
