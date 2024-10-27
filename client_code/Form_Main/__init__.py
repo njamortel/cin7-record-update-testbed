@@ -32,7 +32,7 @@ class Form_Main(Form_MainTemplate):
             self.txtProgress.text = ""
             self.rich_text_Log.content = ""
           
-            self.txtProgress.text = "Processing started"
+            self.txtProgress.text = "Your file is being uploaded in the background. You can continue using the app, and we'll notify you once the upload is complete!"
             self.rich_text_Log.content += "Processing started\n"
             try:
                 # Start the background task and get the task ID
