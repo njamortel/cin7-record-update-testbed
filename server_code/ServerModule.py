@@ -12,6 +12,7 @@ import aiohttp
 log_messages = []
 progress = 0
 update_result = ""
+ki = ""
 
 def append_to_log_message_queue(message):
     global log_messages
@@ -49,8 +50,10 @@ def background_csv_processing(file):
         
         # Call the asynchronous function for updating
         asyncio.run(update_purchase_orders(json_data))
-        print('RESULT', update_result)
+      
+        test(update_result)
         return update_result
+      
     except Exception as e:
         error_message = f"Error processing CSV: {str(e)}"
         append_to_log_message_queue(error_message)
@@ -111,3 +114,13 @@ def get_log_messages():
     global log_messages
     append_to_log_message_queue("get_log_messages called")
     return log_messages
+
+@anvil.server.callable
+def test(status):
+    global ki  
+    ki = status
+    print('KI', ki)
+  
+@anvil.server.callable
+def stat():
+  return ki

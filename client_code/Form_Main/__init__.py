@@ -22,6 +22,7 @@ class Form_Main(Form_MainTemplate):
             self.rich_text_Log.content += "Processing started\n"
             try:
                 anvil.server.call('process_csv_and_update', self.csv_file)
+                self.txtProgress.text = anvil.server.call('stat')
                 self.timer_1.enabled = True  # Start the timer to track progress
             except Exception as e:
                 self.txtProgress.text = f"Error: {str(e)}"
@@ -34,3 +35,4 @@ class Form_Main(Form_MainTemplate):
         log_messages = anvil.server.call('get_log_messages')
         for message in log_messages:
             self.rich_text_Log.content += message + '\n'
+
