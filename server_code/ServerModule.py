@@ -49,7 +49,7 @@ def background_csv_processing(file):
         
         # Call the asynchronous function for updating
         asyncio.run(update_purchase_orders(json_data))
-
+        print('RESULT', update_result)
         return update_result
     except Exception as e:
         error_message = f"Error processing CSV: {str(e)}"

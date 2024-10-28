@@ -1,4 +1,4 @@
-from ._anvil_designer import TaskItemTemplateTemplate
+from ._anvil_designer import RowTemplate1Template
 from anvil import *
 import anvil.server
 import anvil.google.auth, anvil.google.drive
@@ -9,13 +9,9 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 
 
-class TaskItemTemplate(TaskItemTemplateTemplate):
+class RowTemplate1(RowTemplate1Template):
   def __init__(self, **properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
-    
-    self.label_task_id.text = str(self.item['task_id'])
-    self.label_status.text = self.item['status']
-    self.label_progress.text = f"{self.item['progress']}%"
-    
+
     # Any code you write here will run before the form opens.

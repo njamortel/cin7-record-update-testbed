@@ -1,5 +1,25 @@
 allow_embedding: true
 db_schema:
+  processes:
+    client: none
+    columns:
+    - admin_ui: {order: 1, width: 200}
+      name: 'status '
+      type: string
+    - admin_ui: {order: 2, width: 200}
+      name: start_time
+      type: datetime
+    - admin_ui: {order: 3, width: 200}
+      name: end_time
+      type: datetime
+    - admin_ui: {order: 4, width: 200}
+      name: id
+      type: string
+    - admin_ui: {order: 5, width: 200}
+      name: status
+      type: string
+    server: full
+    title: processes
   users:
     client: none
     columns:
