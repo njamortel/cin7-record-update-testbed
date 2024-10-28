@@ -7,8 +7,8 @@ import requests
 from datetime import datetime
 import asyncio
 import aiohttp
+from anvil.tables import app_tables 
 
-# Global variable to store log messages
 log_messages = []
 progress = 0
 update_result = ""
@@ -22,8 +22,7 @@ def append_to_log_message_queue(message):
 @anvil.server.callable
 def process_csv_and_update(file):
     # Launch background task to process CSV
-    task = anvil.server.launch_background_task('background_csv_processing', file)
-    return task.get_id()  # Return task ID to track progress
+    anvil.server.launch_background_task('background_csv_processing', file)
 
 @anvil.server.background_task
 def background_csv_processing(file):
@@ -51,7 +50,9 @@ def background_csv_processing(file):
         # Call the asynchronous function for updating
         asyncio.run(update_purchase_orders(json_data))
       
-        test(update_result)
+        # Save the result and date to the database
+        save_result_to_database(update_result)
+      
         return update_result
       
     except Exception as e:
@@ -59,6 +60,14 @@ def background_csv_processing(file):
         append_to_log_message_queue(error_message)
         return error_message
 
+def save_result_to_database(result):
+    # Save the result and the current date to the database
+    app_tables.logs.add_row(
+        result=result,
+        date_time=datetime.now()
+    )
+    append_to_log_message_queue("Result saved to the database.")
+  
 def format_date(date_str):
     try:
         date_obj = datetime.strptime(date_str, '%m/%d/%Y')
@@ -119,8 +128,15 @@ def get_log_messages():
 def test(status):
     global ki  
     ki = status
-    print('KI', ki)
   
 @anvil.server.callable
 def stat():
-  return ki
+  return 'Success! Your file is being uploaded in the background'
+
+@anvil.server.callable
+def get_update_logs():
+    # Fetch all rows from the UpdatesLog table
+    logs = app_tables.logs.search()
+    # Convert to a list of dictionaries for easy handling on the client side
+    log_list = [{"result": log["result"], "date": log["date"].strftime('%Y-%m-%d %H:%M:%S')} for log in logs]
+    return log_list
