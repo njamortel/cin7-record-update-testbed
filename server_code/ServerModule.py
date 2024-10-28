@@ -86,10 +86,9 @@ async def update_purchase_orders(json_data):
         async with aiohttp.ClientSession() as session:
             async with session.put(endpoint_url, headers=headers, json=data["purchase_orders"]) as response:
                 response_text = await response.text()
-                
+
                 if response.status == 200:
                     update_result = f"Successfully updated {total_records} records."
-                    print(update_result)
                     append_to_log_message_queue(update_result)
                 else:
                     update_result = f"Failed to update records. Response Code: {response.status}"
@@ -111,5 +110,4 @@ async def update_purchase_orders(json_data):
 def get_log_messages():
     global log_messages
     append_to_log_message_queue("get_log_messages called")
-    print(log_messages)
     return log_messages

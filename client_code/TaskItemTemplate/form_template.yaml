@@ -1,0 +1,15 @@
+components:
+- layout_properties: {grid_position: 'ZAWWSK,WUUOYX'}
+  name: label_task_id
+  properties: {text: agadiiii}
+  type: Label
+- layout_properties: {grid_position: 'GEPDSP,HRVJYE'}
+  name: label_status
+  properties: {}
+  type: Label
+- layout_properties: {grid_position: 'CSKWIO,QNAZUS'}
+  name: label_progress
+  properties: {}
+  type: Label
+container: {type: ColumnPanel}
+is_package: true
