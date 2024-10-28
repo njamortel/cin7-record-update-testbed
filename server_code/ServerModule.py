@@ -64,7 +64,7 @@ def save_result_to_database(result):
     # Save the result and the current date to the database
     app_tables.logs.add_row(
         result=result,
-        date_time=datetime.now()
+        date=datetime.now()
     )
     append_to_log_message_queue("Result saved to the database.")
   
