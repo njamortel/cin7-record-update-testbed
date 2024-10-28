@@ -64,7 +64,6 @@ def format_date(date_str):
         return date_str
 
 async def update_purchase_orders(json_data):
-    print('damooon')
     global progress, update_result
     append_to_log_message_queue("update_purchase_orders called")
     
