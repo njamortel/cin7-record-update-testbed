@@ -62,9 +62,11 @@ def background_csv_processing(file):
 
 def save_result_to_database(result):
     # Save the result and the current date to the database
+  
+    formatted_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     app_tables.logs.add_row(
         result=result,
-        date=datetime.now()
+        date=formatted_date
     )
     append_to_log_message_queue("Result saved to the database.")
   
@@ -97,8 +99,7 @@ async def update_purchase_orders(json_data):
         # Use aiohttp for asynchronous HTTP request
         async with aiohttp.ClientSession() as session:
             async with session.put(endpoint_url, headers=headers, json=data["purchase_orders"]) as response:
-                response_text = await response.text()
-
+              
                 if response.status == 200:
                     update_result = f"Successfully updated {total_records} records."
                     append_to_log_message_queue(update_result)
@@ -131,12 +132,4 @@ def test(status):
   
 @anvil.server.callable
 def stat():
-  return 'Success! Your file is being uploaded in the background'
-
-@anvil.server.callable
-def get_update_logs():
-    # Fetch all rows from the UpdatesLog table
-    logs = app_tables.logs.search()
-    # Convert to a list of dictionaries for easy handling on the client side
-    log_list = [{"result": log["result"], "date": log["date"].strftime('%Y-%m-%d %H:%M:%S')} for log in logs]
-    return log_list
+  return 'Success! Your file is being uploaded in the background.'

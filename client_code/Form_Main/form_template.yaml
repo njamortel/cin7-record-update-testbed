@@ -19,14 +19,26 @@ components:
     name: txtProgress
     properties: {enabled: false, visible: true}
     type: TextBox
+  - layout_properties: {grid_position: 'EYMNXJ,YDOVOT'}
+    name: label_1
+    properties: {spacing_above: medium, text: Background Task Logs}
+    type: Label
+  - event_bindings: {click: link_1_click}
+    layout_properties: {grid_position: 'GMXVOL,BOGOZJ'}
+    name: link_1
+    properties: {spacing_above: none, text: Refresh Table}
+    type: Link
   - components:
-    - name: repeating_panel_1
-      properties: {item_template: Form_Main.RowTemplate5}
+    - layout_properties: {}
+      name: repeating_panel_1
+      properties: {background: 'theme:Header Background', foreground: '', item_template: Form_Main.RowTemplate5}
       type: RepeatingPanel
     data_bindings: []
     layout_properties: {full_width_row: false, grid_position: 'NGFPKU,IKBOJG'}
     name: data_grid_1
     properties:
+      background: theme:Header Background
+      border: '1'
       columns:
       - {data_key: result, id: JKSDUP, title: Result}
       - {data_key: date, id: VJQQOR, title: Date}
