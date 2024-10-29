@@ -26,6 +26,7 @@ class Form_Main(Form_MainTemplate):
             try:
                 anvil.server.call('process_csv_and_update', self.csv_file)
                 self.txtProgress.text = anvil.server.call('stat')
+                self.error_handler = anvil.server.call('stat')
                 self.file_loader_1.text = 'Upload'
                 self.csv_file = None
                
