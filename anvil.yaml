@@ -49,7 +49,7 @@ package_name: cin7_record_update_testbed
 runtime_options:
   client_version: '3'
   server_spec: null
-  server_spec_disabled: {base: python310-machine-learning, requirements: ''}
+  server_spec_disabled: {base: python310-minimal, requirements: ''}
   server_version: python3-full
   version: 2
 services:
