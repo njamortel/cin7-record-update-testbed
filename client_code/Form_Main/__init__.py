@@ -7,7 +7,7 @@ from anvil.tables import app_tables, order_by  # Import order_by directly
 
 class Form_Main(Form_MainTemplate):
     def __init__(self, **properties):
-        self.init_components(**properties)
+        # self.init_components(**properties)
         anvil.users.login_with_form()
         self.repeating_panel_1.items = app_tables.logs.search(
             order_by("date", ascending=False)
