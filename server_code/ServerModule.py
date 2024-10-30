@@ -8,6 +8,7 @@ from datetime import datetime
 import asyncio
 import aiohttp
 from anvil.tables import app_tables 
+import chardet
 
 log_messages = []
 progress = 0
@@ -31,13 +32,15 @@ def background_csv_processing(file):
     append_to_log_message_queue("process_csv_and_update called")
 
     try:
-        csv_data = file.get_bytes().decode('utf-8').splitlines()
+        raw_data = file.get_bytes()
+        detected_encoding = chardet.detect(raw_data)['encoding']
+        csv_data = raw_data.decode(detected_encoding).splitlines()
         csv_reader = csv.DictReader(csv_data)
         data = []
       
         for row in csv_reader:
             purchase_order = {
-                "id": int(row["id"]),
+                "id": row["id"],
                 "stage": row["stage"],
                 "estimatedArrivalDate": format_date(row["estimatedArrivalDate"]),
                 "estimatedDeliveryDate": format_date(row["estimatedDeliveryDate"])
